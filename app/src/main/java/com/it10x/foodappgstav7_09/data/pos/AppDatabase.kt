@@ -2,7 +2,7 @@ package com.it10x.foodappgstav7_09.data.pos
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
-import com.it10x.foodappgstav7_08.data.printqueue.PrintQueueEntity
+import com.it10x.foodappgstav7_09.data.printqueue.PrintQueueEntity
 import com.it10x.foodappgstav7_09.data.pos.dao.*
 import com.it10x.foodappgstav7_09.data.pos.entities.*
 import com.it10x.foodappgstav7_09.data.pos.entities.config.*

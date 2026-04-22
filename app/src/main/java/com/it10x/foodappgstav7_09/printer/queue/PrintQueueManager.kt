@@ -1,7 +1,7 @@
 package com.it10x.foodappgstav7_09.printer.queue
 
 import android.util.Log
-import com.it10x.foodappgstav7_08.data.printqueue.PrintQueueEntity
+import com.it10x.foodappgstav7_09.data.printqueue.PrintQueueEntity
 import com.it10x.foodappgstav7_09.data.PrinterRole
 import com.it10x.foodappgstav7_09.data.printqueue.PrintQueueDao
 

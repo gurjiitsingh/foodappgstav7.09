@@ -3,7 +3,7 @@ package com.it10x.foodappgstav7_09.data.printqueue
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
-import com.it10x.foodappgstav7_08.data.printqueue.PrintQueueEntity
+import com.it10x.foodappgstav7_09.data.printqueue.PrintQueueEntity
 
 @Dao
 interface PrintQueueDao {

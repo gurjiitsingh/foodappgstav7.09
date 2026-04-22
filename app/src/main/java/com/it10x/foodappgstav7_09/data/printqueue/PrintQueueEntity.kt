@@ -1,4 +1,4 @@
-package com.it10x.foodappgstav7_08.data.printqueue
+package com.it10x.foodappgstav7_09.data.printqueue
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
