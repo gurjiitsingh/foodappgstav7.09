@@ -2,6 +2,7 @@ package com.it10x.foodappgstav7_09
 
 import android.app.Application
 import android.util.Log
+import com.it10x.foodappgstav7_09.core.AppContextProvider
 import com.it10x.foodappgstav7_09.firebase.ClientIdStore
 
 class MyApp : Application() {
@@ -9,6 +10,7 @@ class MyApp : Application() {
     override fun onCreate() {
         super.onCreate()
 
+        AppContextProvider.context = applicationContext
         val clientId = ClientIdStore.get(this)
 
         if (clientId.isNullOrBlank()) {

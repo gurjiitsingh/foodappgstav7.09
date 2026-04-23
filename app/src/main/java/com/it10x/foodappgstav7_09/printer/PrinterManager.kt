@@ -45,9 +45,24 @@ class PrinterManager(
 
 
     fun enqueuePrint(role: PrinterRole, text: String) {
+        Log.e("PRINT_DEBUG", "🔥 enqueuePrint CALLED role=$role")
         scope.launch {
             queueManager.enqueue(role, text)
         }
+    }
+
+    fun enqueueBill(
+        order: PrintOrder,
+        outletInfo: OutletInfo
+    ) {
+        val size = prefs.getPrinterSize(PrinterRole.BILLING) ?: "80mm"
+
+        val receiptText = when (size) {
+            "80mm" -> ReceiptFormatter.billing48(order, outletInfo)
+            else -> ReceiptFormatter.billing(order, outletInfo)
+        }
+
+        enqueuePrint(PrinterRole.BILLING, receiptText)
     }
 
     // --------------------------------

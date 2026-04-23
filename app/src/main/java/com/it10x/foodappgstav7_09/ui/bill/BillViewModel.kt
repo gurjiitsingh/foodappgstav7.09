@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.firestore.FirebaseFirestore
 import com.it10x.foodappgstav7_09.data.PrinterRole
 import com.it10x.foodappgstav7_09.data.online.repository.CashierOrderSyncRepository
+import com.it10x.foodappgstav7_09.data.online.sync.SyncManagerProvider
 import com.it10x.foodappgstav7_09.data.online.sync.TableKotSyncService
 import com.it10x.foodappgstav7_09.data.pos.dao.KotItemDao
 import com.it10x.foodappgstav7_09.data.pos.dao.OrderMasterDao
@@ -763,18 +764,19 @@ class BillViewModel(
                         orderType = orderType
                     )
 
+                    // ✅ 2. PRINT IMMEDIATELY
+                    printOrder(orderMaster, orderItems)
+
                     // 🔥 FIRESTORE CLEAR
                     try {
-                        tableKotSyncService.clearTableSnapshot(tableId)
+                      //  tableKotSyncService.clearTableSnapshot(tableId)
+                        SyncManagerProvider.get().addClearTable(tableId)
                         Log.d("TABLE_SYNC", "✅ Table cleared after payment")
                     } catch (e: Exception) {
                         Log.e("TABLE_SYNC", "❌ Failed to clear table", e)
                     }
             }
-
-
                 //FISKLAY CODE
-                // ✅ ONLY AFTER SUCCESS
                 withContext(Dispatchers.IO) {
                     fiscalService.finish(
                         fiscalContext,
@@ -782,13 +784,10 @@ class BillViewModel(
                         kotItems
                     )
                 }
-//FISCLAY CODE END
 
-
-            printOrder(orderMaster, orderItems)
                 sendEvent("Payment successful")
 
-            resetBillUi()
+                resetBillUi()
             } catch (e: Exception) {
 
 //                if (::fiscalService.isInitialized && ::fiscalContext.isInitialized) {
@@ -830,10 +829,11 @@ class BillViewModel(
 
                 //  NEW: FIRESTORE TABLE SNAPSHOT SYNC (IMPORTANT)
                 try {
-                        tableKotSyncService.syncTableSnapshot(
-                            tableId = tableId,
-                            source = "POS"
-                        )
+//                        tableKotSyncService.syncTableSnapshot(
+//                            tableId = tableId,
+//                            source = "POS"
+//                        )
+                    SyncManagerProvider.get().addTableUpdate(tableId)
 
                 } catch (e: Exception) {
                     Log.e("TABLE_SYNC", "Failed to trigger snapshot sync", e)
@@ -871,22 +871,11 @@ class BillViewModel(
             }
             return@withContext
         }
-
         val outletInfo = OutletMapper.fromEntity(outlet)
 
     //    printerManager.printTextNewSuspend(PrinterRole.BILLING, printOrder, outletInfo)
-
-        val receiptText = ReceiptFormatter.billing48(printOrder, outletInfo)
-
-        printerManager.enqueuePrint(
-            PrinterRole.BILLING,
-            receiptText
-        )
-
-
-
+        printerManager.enqueueBill(printOrder, outletInfo)
           }
-
 
     fun getDoneItems(orderRef: String, orderType: String): Flow<List<PosKotItemEntity>> {
         return kotItemDao.getDoneItemsForTable(orderRef)

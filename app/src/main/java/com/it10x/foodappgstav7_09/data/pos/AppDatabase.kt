@@ -2,6 +2,8 @@ package com.it10x.foodappgstav7_09.data.pos
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import com.it10x.foodappgstav7_09.data.online.sync.SyncQueueDao
+import com.it10x.foodappgstav7_09.data.online.sync.SyncQueueEntity
 import com.it10x.foodappgstav7_09.data.printqueue.PrintQueueEntity
 import com.it10x.foodappgstav7_09.data.pos.dao.*
 import com.it10x.foodappgstav7_09.data.pos.entities.*
@@ -29,9 +31,10 @@ import com.it10x.foodappgstav7_09.data.printqueue.PrintQueueDao
         PosUserEntity::class,
         PosPreferenceEntity::class,
         PosDeviceEntity::class,
-        PrintQueueEntity::class
+        PrintQueueEntity::class,
+        SyncQueueEntity::class
     ],
-    version = 92,              // ⬆️ increment version since schema changed
+    version = 93,              // ⬆️ increment version since schema changed
     exportSchema = true
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -59,4 +62,5 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun printerDao(): PrinterDao
 
     abstract fun printQueueDao(): PrintQueueDao
+    abstract fun syncQueueDao(): SyncQueueDao
 }
