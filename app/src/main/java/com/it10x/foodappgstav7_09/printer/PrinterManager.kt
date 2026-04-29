@@ -25,9 +25,24 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class PrinterManager(
+class PrinterManager private constructor(
     private val context: Context
 ) {
+
+    companion object {
+        @Volatile
+        private var INSTANCE: PrinterManager? = null
+
+        fun getInstance(context: Context): PrinterManager {
+            return INSTANCE ?: synchronized(this) {
+                INSTANCE ?: PrinterManager(context.applicationContext).also {
+                    INSTANCE = it
+                }
+            }
+        }
+    }
+
+
 
 
     private val scope = CoroutineScope(Dispatchers.IO)

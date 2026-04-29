@@ -84,8 +84,8 @@ class KitchenViewModel(
         virtualRepo = virtualTableRepository
     )
 
-    private val printerManager =
-        PrinterManager(app.applicationContext)
+    val printerManager =
+        PrinterManager.getInstance(getApplication<Application>().applicationContext)
 
 
     private val tableKotSyncService = TableKotSyncService(
@@ -116,7 +116,7 @@ class KitchenViewModel(
         appVersion: String?,
         role: String,
     ) {
-
+//FROM THE MAIN POS
         //  logAllKotItems()
         viewModelScope.launch {
             _loading.value = true
@@ -181,8 +181,7 @@ class KitchenViewModel(
         role: String,
         source: String,
     ) {
-        Log.d("SYNC_FLOW", "in saveKotFromFirestoreWaiter  ")
-        Log.d("KOT_DEBUG", "Called from: ${tableNo}")
+      //THIS FUNCTION RECEIVE DATA FROM WAITER POS 1.
         if (cartItems.isEmpty()) {
             Log.w("KOT_BRIDGE", "⚠️ createKotAndPrint called with empty cartItems")
             return
@@ -231,6 +230,8 @@ class KitchenViewModel(
         source: String,
     ): Boolean = withContext(Dispatchers.IO) {
         //  Log.d("KOT", "saveKotAndPrintKitchen Called from: ${Throwable().stackTrace[1]}")
+        //FROM MAIN POS AND
+        //FROM FIRESTORE WAITER POS
         val tableNo = tableNo ?: "";
         try {
             val db = AppDatabaseProvider.get(printerManager.appContext())
@@ -281,18 +282,14 @@ class KitchenViewModel(
                 )
             }
 
-
-
             Log.d("KOT_DEBUG", "---- MainKitchenViewmodel----source:${source}")
             kotRepository.insertItemsInBill(tableNo, items, role)
             kotRepository.syncBillCount(tableId)
 
             CoroutineScope(Dispatchers.IO).launch {
-
                 try {
                     // 🔥 PRINT (background)
                     val batchItems = kotItemDao.getItemsByBatchId(batchId)
-
                     if (batchItems.isNotEmpty()) {
 //                        printerManager.printTextKitchen(
 //                            PrinterRole.KITCHEN,
@@ -321,15 +318,12 @@ class KitchenViewModel(
                 }
             }
 
-
  //  logAllKotItemsOnce()
            true
-
         } catch (e: Exception) {
             Log.e("KOT", "❌ Failed to save KOT", e)
             false
         }
-
     }
 
 

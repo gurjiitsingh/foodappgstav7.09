@@ -87,7 +87,7 @@ class WaiterKitchenViewModel(
     )
 
     private val printerManager =
-        PrinterManager(app.applicationContext)
+        PrinterManager.getInstance(app.applicationContext)
 
     fun waiterCartTo_FireStore_Bill(
         cartList: List<PosCartEntity>,

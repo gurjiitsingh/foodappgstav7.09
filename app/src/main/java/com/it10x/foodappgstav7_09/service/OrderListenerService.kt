@@ -31,7 +31,8 @@ class OrderListenerService : Service() {
 
         super.onCreate()
 
-        val printerManager = PrinterManager(this)
+
+        val printerManager = PrinterManager.getInstance(this)
         val ordersRepo = OrdersRepository()
 
         val autoPrint = AutoPrintManager(
