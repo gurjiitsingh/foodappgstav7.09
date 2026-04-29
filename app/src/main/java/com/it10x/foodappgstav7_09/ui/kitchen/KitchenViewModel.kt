@@ -28,6 +28,7 @@ import java.util.UUID
 import com.it10x.foodappgstav7_09.data.pos.repository.KotRepository
 import com.it10x.foodappgstav7_09.data.pos.repository.VirtualTableRepository
 import com.it10x.foodappgstav7_09.data.pos.manager.TableSyncManager
+import com.it10x.foodappgstav7_09.printer.ReceiptFormatter
 import kotlinx.coroutines.CoroutineScope
 
 class KitchenViewModel(
@@ -293,8 +294,13 @@ class KitchenViewModel(
                     val batchItems = kotItemDao.getItemsByBatchId(batchId)
 
                     if (batchItems.isNotEmpty()) {
-                        printerManager.printTextKitchen(
-                            PrinterRole.KITCHEN,
+//                        printerManager.printTextKitchen(
+//                            PrinterRole.KITCHEN,
+//                            sessionKey = tableNo,
+//                            orderType = orderType,
+//                            items = batchItems
+//                        )
+                        printerManager.enqueueKitchen(
                             sessionKey = tableNo,
                             orderType = orderType,
                             items = batchItems
@@ -304,12 +310,11 @@ class KitchenViewModel(
                     }
 
                     // 🔥 FIRESTORE SYNC (background)
-                    if (source != "FIRESTORE") {
-                        tableKotSyncService.syncTableSnapshot(
+                       tableKotSyncService.syncTableSnapshot(
                             tableId = tableNo,
                             source = source
                         )
-                    }
+
 
                 } catch (e: Exception) {
                     Log.e("ASYNC_TASK", "❌ Background failed", e)

@@ -47,7 +47,6 @@ Tax        : ${fmt(order.taxTotal)}
 GRAND TOTAL: ${fmt(order.grandTotal)}
 --------------------------------
 Thank You!
-
 """.trimIndent()
             )
         }

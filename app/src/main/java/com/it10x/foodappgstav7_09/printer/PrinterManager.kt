@@ -65,6 +65,26 @@ class PrinterManager(
         enqueuePrint(PrinterRole.BILLING, receiptText)
     }
 
+
+
+    fun enqueueKitchen(
+        sessionKey: String,
+        orderType: String,
+        items: List<PosKotItemEntity>
+    ) {
+
+
+
+        val text = ReceiptFormatter.posKitchen(
+            sessionKey = sessionKey,
+            orderType = orderType,
+            items = items,
+
+        )
+
+        enqueuePrint(PrinterRole.KITCHEN, text)
+    }
+
     // --------------------------------
     // NEW PRINT JOB STRATAGY
     // --------------------------------

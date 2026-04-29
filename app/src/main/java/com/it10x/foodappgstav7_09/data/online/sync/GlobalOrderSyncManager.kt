@@ -306,7 +306,7 @@ private fun startMainPosListener() {
                             deviceName = "WAITER",
                             appVersion = "WAITER",
                             role = "FIRESTORE",
-                            source = source
+                            source = "FIRESTORE"
                         )
 
                         // Delete after processing

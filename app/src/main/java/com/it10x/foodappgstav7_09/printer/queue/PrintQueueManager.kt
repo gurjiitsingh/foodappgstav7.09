@@ -19,12 +19,18 @@ class PrintQueueManager(
 
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
-    private val billingChannel = Channel<PrintQueueEntity>(Channel.UNLIMITED)
+
+    private val channels = mutableMapOf<PrinterRole, Channel<PrintQueueEntity>>()
 
     init {
-        startWorker(billingChannel)
+        PrinterRole.values().forEach { role ->
+            val channel = Channel<PrintQueueEntity>(Channel.UNLIMITED)
+            channels[role] = channel
+            startWorker(channel)
+        }
 
-        // Restore pending jobs on app start
+        Log.e("QUEUE_INIT", "🔥 PrintQueueManager CREATED ${System.currentTimeMillis()}")
+
         scope.launch {
             loadPendingJobs()
         }
@@ -42,7 +48,8 @@ class PrintQueueManager(
         )
 
         dao.insert(job)
-        billingChannel.send(job)
+
+        channels[role]?.send(job)   // ✅ ROLE BASED
     }
 
     private fun startWorker(channel: Channel<PrintQueueEntity>) {
@@ -50,6 +57,90 @@ class PrintQueueManager(
             for (job in channel) {
                 processJob(job)
             }
+        }
+    }
+
+
+    private suspend fun processJob3(job: PrintQueueEntity) {
+
+        val role = PrinterRole.valueOf(job.role)
+
+        dao.updateStatus(job.id, "PRINTING", job.retryCount)
+
+        Log.d("PRINT_QUEUE", "Printing job ${job.id}")
+
+        val success = suspendCancellableCoroutine<Boolean> { cont ->
+            printerManager.printText(role, job.text) {
+                if (cont.isActive) cont.resume(it)
+            }
+        }
+
+        if (success) {
+            dao.delete(job.id)
+            Log.d("PRINT_QUEUE", "DONE ${job.id}")
+
+        } else {
+
+            val retry = job.retryCount + 1
+
+            Log.e("PRINT_QUEUE", "FAILED ${job.id} retry=$retry")
+
+            if (retry >= 2) {
+                dao.delete(job.id)
+                Log.e("PRINT_QUEUE", "GIVE UP ${job.id}")
+                return
+            }
+
+            dao.updateStatus(job.id, "PENDING", retry)
+
+            delay(2000)
+
+            // ✅ reuse same job (NO copy)
+            channels[role]?.send(job)
+        }
+    }
+
+    private suspend fun processJob2(job: PrintQueueEntity) {
+
+        val role = PrinterRole.valueOf(job.role)
+
+        dao.updateStatus(job.id, "PRINTING", job.retryCount)
+
+        Log.d("PRINT_QUEUE", "Printing job ${job.id}")
+
+        val success = suspendCancellableCoroutine<Boolean> { cont ->
+
+            printerManager.printText(
+                role,
+                job.text
+            ) {
+                if (cont.isActive) cont.resume(it)
+            }
+        }
+
+        if (success) {
+            dao.delete(job.id)
+            Log.d("PRINT_QUEUE", "DONE ${job.id}")
+
+        } else {
+
+            val retry = job.retryCount + 1
+
+            Log.e("PRINT_QUEUE", "FAILED ${job.id} retry=$retry")
+
+            if (retry >= 2) {
+                // ❌ avoid infinite retry
+                dao.delete(job.id)
+                Log.e("PRINT_QUEUE", "GIVE UP ${job.id}")
+                return
+            }
+
+            // 🔁 retry later
+            dao.updateStatus(job.id, "PENDING", retry)
+
+            delay(2000)
+
+            channels[role]?.send(job.copy(retryCount = retry))
         }
     }
 
@@ -77,8 +168,10 @@ class PrintQueueManager(
 
     private suspend fun loadPendingJobs() {
         val jobs = dao.getPending()
-        jobs.forEach {
-            billingChannel.send(it)
+
+        jobs.forEach { job ->
+            val role = PrinterRole.valueOf(job.role)
+            channels[role]?.send(job)
         }
     }
 }

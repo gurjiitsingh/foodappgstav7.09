@@ -118,8 +118,6 @@ ${totalLine("GRAND TOTAL", order.grandTotal)}
 ------------------------------
 ${buildOutletFooter(outletInfo, 32)}
 Thank You!
-
-
 """.trimIndent()
             )
         }
@@ -211,8 +209,6 @@ ${totalLine48("GRAND TOTAL", order.grandTotal)}
 ------------------------------------------------
 ${buildOutletFooter(outletInfo, 48)}
 Thank You!
-
-
 """.trimIndent()
             )
         }
@@ -528,8 +524,6 @@ ${"-".repeat(lineWidth)}
 ${totalLineWidth("GRAND TOTAL", order.grandTotal, lineWidth)}
 ${"-".repeat(lineWidth)}
 Thank You!
-
-
 """.trimIndent()
             )
         }

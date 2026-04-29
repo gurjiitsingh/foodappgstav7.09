@@ -107,8 +107,6 @@ GST             ${format(order.taxTotal)}
 GRAND TOTAL     ${format(order.grandTotal)}
 ------------------------------
 Thank You!
-
-
 """.trimIndent()
             )
         }
